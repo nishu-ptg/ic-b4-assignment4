@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\UpdateUserRequest;
 use App\Http\Resources\Api\UserResource;
 use Illuminate\Http\Request;
 
@@ -15,14 +16,9 @@ class UserController extends Controller
         return apiResponse(new UserResource($user));
     }
 
-    public function update(Request $request)
+    public function update(UpdateUserRequest $request)
     {
         $user = $request->user();
-
-        $request->validate([
-            'name'  => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
-        ]);
 
         $user->update($request->only('name', 'email'));
 

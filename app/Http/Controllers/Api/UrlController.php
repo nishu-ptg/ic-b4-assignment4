@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreUrlRequest;
+use App\Http\Requests\Api\UpdateUrlRequest;
 use App\Http\Resources\Api\UrlResource;
 use App\Models\Url;
 use Illuminate\Http\Request;
@@ -29,13 +31,8 @@ class UrlController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUrlRequest $request)
     {
-        $request->validate([
-            'original_url' => 'required|url|max:2048',
-            'expires_at' => 'nullable|date|after:now',
-        ]);
-
         $url = $request->user()->urls()->create([
             'original_url' => $request->original_url,
             'short_code' => $this->generateUniqueShortCode(),
@@ -60,13 +57,8 @@ class UrlController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Url $url)
+    public function update(UpdateUrlRequest $request, Url $url)
     {
-        $request->validate([
-            'original_url' => 'sometimes|required|url|max:2048',
-            'expires_at' => 'sometimes|nullable|date|after:now',
-        ]);
-
         $url->update($request->only('original_url', 'expires_at'));
 
         return apiResponse(
