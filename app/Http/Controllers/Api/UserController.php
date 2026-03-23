@@ -12,9 +12,7 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        return apiResponse([
-            'user' => new UserResource($request->user())
-        ]);
+        return apiResponse(new UserResource($user));
     }
 
     public function update(Request $request)
@@ -28,9 +26,10 @@ class UserController extends Controller
 
         $user->update($request->only('name', 'email'));
 
-        return apiResponse([
-            'user' => new UserResource($user->fresh())
-        ], 'Profile updated successfully');
+        return apiResponse(
+            new UserResource($user->fresh()),
+            'Profile updated successfully'
+        );
     }
 
     public function destroy(Request $request)

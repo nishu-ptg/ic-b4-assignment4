@@ -1,10 +1,12 @@
 <?php
 
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -25,6 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // check the actual exception (if needed)
+//        $exceptions->render(function (Throwable $e, Request $request) {
+//            dd(get_class($e), $e->getMessage());
+//        });
+
         // force json for api routes
         $exceptions->shouldRenderJsonWhen(function (Request $request) {
             return $request->is('api/*') || $request->expectsJson();
@@ -36,6 +43,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => 'Unauthenticated. Please provide a valid Bearer token.'
                 ], 401);
+            }
+        });
+
+        // model not found
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            if ($request->is('api/*')) {
+                if ($e->getPrevious() instanceof ModelNotFoundException) {
+                    return response()->json([
+                        'message' => 'Resource not found.',
+                    ], 404);
+                }
             }
         });
 
