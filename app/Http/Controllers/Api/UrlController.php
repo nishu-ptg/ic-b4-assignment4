@@ -73,7 +73,6 @@ class UrlController extends Controller
             new UrlResource($url->fresh()),
             'URL updated successfully'
         );
-
     }
 
     /**
@@ -92,6 +91,7 @@ class UrlController extends Controller
             $timestamp = base_convert(now()->timestamp, 10, 36);
             $random = Str::random(3);
             $code = $timestamp . $random;
+            $code = strtolower($code);
         } while (Url::where('short_code', $code)->exists());
 
         return $code;
